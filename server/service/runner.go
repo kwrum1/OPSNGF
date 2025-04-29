@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os/exec"
 
 	"github.com/HUAHUAI23/simple-waf/server/config"
 	"github.com/HUAHUAI23/simple-waf/server/service/daemon"
@@ -110,19 +111,29 @@ func (s *RunnerServiceImpl) ForceStop(ctx context.Context) error {
 	return nil
 }
 
-// Reload 热重载运行器
+// Reload 热重载运行器 且同步 Suricata 端口过滤规则
+type reloadScript = "/usr/local/bin/suricata-reload.sh"
 func (s *RunnerServiceImpl) Reload(ctx context.Context) error {
 	// 检查当前状态
 	if s.runner.GetState() != daemon.ServiceRunning {
 		return ErrRunnerNotRunning
 	}
 
-	// 热重载服务
+	// 1) 热重载 WAF (HAProxy/Coraza)
 	err := s.runner.HotReload()
 	if err != nil {
 		s.logger.Error().Err(err).Msg("热重载运行器失败")
 		return fmt.Errorf("热重载运行器失败: %w", err)
 	}
 
+	// 2) 同步 Suricata 端口过滤并热重载 Suricata
+	cmd := exec.CommandContext(ctx, "sh", "-c", reloadScript)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		s.logger.Error().Str("output", string(output)).Err(err).Msg("Suricata 热重载脚本执行失败")
+		return fmt.Errorf("suricata reload failed: %w", err)
+	}
+	
+	s.logger.Info().Str("output", string(output)).Msg("Suricata 配置同步并热重载成功")
 	return nil
 }
