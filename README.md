@@ -1,215 +1,167 @@
-# RuiQi WAF
+简易下一代防火墙（Simple Next-Generation Firewall）
+项目简介
+本项目是一个现代化的下一代防火墙（NGFW）管理系统，基于 HAProxy 和 OWASP Coraza WAF 构建，集成了 Coraza SPOA 进行流量处理。系统提供全面的后端 API，用于管理 HAProxy 配置、Coraza WAF 规则以及流量检测。​
 
-<div align="center">
-  <img src="https://img.shields.io/badge/Go-1.24.1-00ADD8?style=flat&logo=go" alt="Go Version">
-  <img src="https://img.shields.io/badge/HAProxy-3.0-green?style=flat&logo=haproxy" alt="HAProxy">
-  <img src="https://img.shields.io/badge/OWASP-Coraza-blue?style=flat" alt="Coraza WAF">
-  <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat" alt="License">
-</div>
-
-<br>
-
-A modern web application firewall (WAF) management system built on top of [HAProxy](https://www.haproxy.org/) and [OWASP Coraza WAF](https://github.com/corazawaf/coraza) with the [Coraza SPOA](https://github.com/corazawaf/coraza-spoa) integration. This system provides a comprehensive backend API for managing HAProxy configurations, Coraza WAF rules, and traffic inspection.
-
-## 🌐 Click To Run
-
-run the application in less than 30 seconds,default username: **admin**,default password: **admin123**
-
-[![](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://usw.sealos.io/?openapp=system-template%3FtemplateName%3DRuiqi-Waf)
+🌐 一键部署
+您可以在 30 秒内运行该应用，默认用户名：admin，默认密码：admin123​
 
 
 
+核心架构
+简易下一代防火墙采用模块化架构，前端由 HAProxy 处理流量，Coraza WAF 通过 SPOE（Stream Processing Offload Engine）提供安全检测：​
 
-## Core Architecture
-
-Simple WAF implements a modular architecture with HAProxy at the front handling traffic and Coraza WAF providing security inspection through SPOE (Stream Processing Offload Engine):
-
-```mermaid
+mermaid
+复制
+编辑
 graph TD
-    Client[Client] -->|HTTP Request| HAProxy
-    HAProxy -->|TCP Connection| SPOE[Coraza SPOE Agent]
-    SPOE -->|Message Type Recognition| TypeCheck
-    TypeCheck -->|coraza-req| ReqHandler[Request Handler]
-    TypeCheck -->|coraza-res| ResHandler[Response Handler]
-    ReqHandler -->|Get App Name| ReqApp[Find Application]
-    ResHandler -->|Get App Name| ResApp[Find Application]
-    ReqApp -->|Process Request| ReqProcess[Request Processor]
-    ResApp -->|Process Response| ResProcess[Response Processor]
-    ReqProcess --> Return[Return Results to HAProxy]
+    Client[客户端] -->|HTTP 请求| HAProxy
+    HAProxy -->|TCP 连接| SPOE[Coraza SPOE Agent]
+    SPOE -->|消息类型识别| TypeCheck
+    TypeCheck -->|coraza-req| ReqHandler[请求处理器]
+    TypeCheck -->|coraza-res| ResHandler[响应处理器]
+    ReqHandler -->|获取应用名称| ReqApp[查找应用]
+    ResHandler -->|获取应用名称| ResApp[查找应用]
+    ReqApp -->|处理请求| ReqProcess[请求处理器]
+    ResApp -->|处理响应| ResProcess[响应处理器]
+    ReqProcess --> Return[返回结果给 HAProxy]
     ResProcess --> Return
-    HAProxy -->|Apply Action| Action[Allow/Deny/Log]
-    Action -->|Response| Client
-```
+    HAProxy -->|应用动作| Action[允许/拒绝/记录]
+    Action -->|响应| Client
+功能特性
+HAProxy 集成
 
-### SPOE Communication Workflow
+完整的 HAProxy 生命周期管理（启动、停止、重启）
 
-```
-[HAProxy Request] → [internal.Agent.Serve(Listener)]
-                          ↓
-                   Create spop.Agent
-                   agent := spop.Agent{
-                       Handler: a,
-                       BaseContext: a.Context,
-                   }
-                          ↓
-                [spop.Agent.Serve(Listener)]
-                          ↓
-                   Accept new connections
-                   nc, err := l.Accept()
-                          ↓
-                   Create protocol handler
-                   p := newProtocolClient(ctx, nc, as, handler)
-                          ↓
-                   Start goroutine for connection
-                   go func() {
-                       p.Serve()
-                   }()
-                          ↓
-                [protocolClient.Serve]
-                   Process frames in connection
-                          ↓
-                [frameHandler processes Frame]
-                   Dispatch based on frame type
-                          ↓
-                [onNotify handles messages]
-                   Create message scanner and objects
-                   Call Handler.HandleSPOE
-                          ↓
-                [internal.Agent.HandleSPOE processing]
-                          ↓
-                   Parse message type (coraza-req/coraza-res)
-                          ↓
-                   Get application name
-                          ↓
-                   Find Application
-                          ↓
-                   Execute message handler
-                          ↓
-                   Process return results
-                          ↓
-                [Return to HAProxy]
-```
+动态配置生成
 
-## Features
+实时状态监控
 
-- **HAProxy Integration**
+Coraza WAF 集成
 
-  - Full HAProxy lifecycle management (start, stop, restart)
-  - Dynamic configuration generation
-  - Real-time status monitoring
+支持 OWASP Core Rule Set（CRS）
 
-- **Coraza WAF Integration**
+兼容 ModSecurity SecLang 规则
 
-  - OWASP Core Rule Set (CRS) support
-  - ModSecurity SecLang rule compatibility
-  - Custom rule management
-  - WAF engine lifecycle management
+自定义规则管理
 
-- **Advanced Security**
+WAF 引擎生命周期管理
 
-  - HTTP request inspection
-  - HTTP response inspection
-  - Real-time attack detection and prevention
-  - RBAC user permission system
+高级安全功能
 
-- **Monitoring and Logging**
+HTTP 请求和响应检测
 
-  - WAF attack logs and analytics
-  - Traffic statistics
-  - Performance metrics
+实时攻击检测与防御
 
-- **API-Driven Workflow**
-  - RESTful API with Gin framework
-  - Swagger/ReDoc API documentation
-  - JWT authentication
+基于角色的访问控制（RBAC）
 
-## Prerequisites
+监控与日志
 
-- Go 1.24.1 or higher
-- Node.js 23.10.0 and pnpm 10.6.5 (for frontend development)
-- HAProxy 3.0 (for local development)
-- MongoDB 6.0
-- Docker and Docker Compose (for containerized deployment)
+WAF 攻击日志与分析
 
-## Local Development
+流量统计
 
-1. Clone the repository:
+性能指标
 
-```bash
-git clone https://github.com/HUAHUAI23/simple-waf.git
-cd simple-waf
-```
+API 驱动的工作流
 
-2. Setup the frontend development environment:
+基于 Gin 框架的 RESTful API
 
-```bash
+Swagger/ReDoc API 文档
+
+JWT 认证
+
+系统要求
+Go 1.24.1 或更高版本
+
+Node.js 23.10.0 和 pnpm 10.6.5（用于前端开发）
+
+HAProxy 3.0（用于本地开发）
+
+MongoDB 6.0
+
+Docker 和 Docker Compose（用于容器化部署）
+
+本地开发
+克隆仓库：
+
+bash
+复制
+编辑
+git clone https://github.com/kwrum1/waf.git
+cd waf
+设置前端开发环境：
+
+bash
+复制
+编辑
 cd server/web
 pnpm install
-pnpm dev # For development mode with hot reload
-# or
-pnpm build # For production build
+pnpm dev # 开发模式，支持热重载
+# 或
+pnpm build # 生产构建
 cd ../..
-```
+配置后端环境：
 
-3. Configure backend environment:
-
-```bash
+bash
+复制
+编辑
 cp server/.env.template server/.env
-# Edit .env with your configurations
-```
+# 编辑 .env 文件，配置您的环境变量
+运行 Go 后端服务：
 
-4. Run the Go backend service:
-
-```bash
+bash
+复制
+编辑
 go work use ./coraza-spoa ./pkg ./server
 cd server
 go run main.go
-```
+开发服务器将启动，访问地址：
 
-The development server will start with:
+API 服务器：http://localhost:2333/api/v1
 
-- API server: `http://localhost:2333/api/v1`
-- Swagger UI: `http://localhost:2333/swagger/index.html`
-- ReDoc UI: `http://localhost:2333/redoc`
-- Frontend: `http://localhost:2333/`
+Swagger UI：http://localhost:2333/swagger/index.html
 
-## Docker Deployment
+ReDoc UI：http://localhost:2333/redoc
 
-1. Clone the repository:
+前端：http://localhost:2333/
 
-```bash
-git clone https://github.com/HUAHUAI23/simple-waf.git
-cd simple-waf
-```
+Docker 部署
+克隆仓库：
 
-2. Build the Docker image:
+bash
+复制
+编辑
+git clone https://github.com/kwrum1/waf.git
+cd waf
+构建 Docker 镜像：
 
-```bash
-docker build -t simple-waf:latest .
-```
+bash
+复制
+编辑
+docker build -t simple-ngfw:latest .
+作为独立容器运行：
 
-3. Run as a standalone container:
+bash
+复制
+编辑
+docker run -p 2333:2333 -p 8080:8080 -p 443:443 -p 80:80 -p 9443:9443 -p 8404:8404 simple-ngfw:latest
+或者，使用 Docker Compose 进行完整部署，包括 MongoDB：
 
-```bash
-docker run -p 2333:2333 -p 8080:8080 -p 443:443 -p 80:80 -p 9443:9443 -p 8404:8404 simple-waf:latest
-```
-
-4. Alternatively, use Docker Compose for a complete deployment with MongoDB:
-
-```bash
-# Edit docker-compose.yaml to configure environment variables if needed
+bash
+复制
+编辑
+# 如有需要，编辑 docker-compose.yaml 文件，配置环境变量
 docker-compose up -d
-```
+这将启动 MongoDB 和简易下一代防火墙服务，并进行所有必要的配置。
 
-This will start both MongoDB and Simple WAF services with all required configurations.
+许可证
+本项目基于 MIT 许可证，详见 LICENSE 文件。
 
-## License
+鸣谢
+OWASP Coraza WAF
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+Coraza SPOA
 
-## Acknowledgements
+HAProxy
 
-- [OWASP Coraza WAF](https://github.com/corazawaf/coraza)
-- [Coraza SPOA](https://github.com/corazawaf/coraza-spoa)
-- [HAProxy](https://www.haproxy.org/)
-- [Go Gin Framework](https://github.com/gin-gonic/gin)
+Go Gin 框架
