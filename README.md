@@ -18,17 +18,29 @@ IPv6冲浪爽 回家又方便 又担心被干？
 
 graph TD
     Client[Client] -->|HTTP Request| HAProxy
+    
     HAProxy -->|TCP Connection| SPOE[Coraza SPOE Agent]
+    
     SPOE -->|Message Type Recognition| TypeCheck
+    
     TypeCheck -->|coraza-req| ReqHandler[Request Handler]
+    
     TypeCheck -->|coraza-res| ResHandler[Response Handler]
+    
     ReqHandler -->|Get App Name| ReqApp[Find Application]
+    
     ResHandler -->|Get App Name| ResApp[Find Application]
+    
     ReqApp -->|Process Request| ReqProcess[Request Processor]
+    
     ResApp -->|Process Response| ResProcess[Response Processor]
+    
     ReqProcess --> Return[Return Results to HAProxy]
+    
     ResProcess --> Return
+    
     HAProxy -->|Apply Action| Action[Allow/Deny/Log]
+    
     Action -->|Response| Client
 
 
