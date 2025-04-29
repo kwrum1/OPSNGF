@@ -1,0 +1,46 @@
+// server/web/src/pages/logs/event/EventList.tsx
+
+import React, { useEffect, useState } from 'react';
+import { fetchSuricataEvents, SuricataEvent } from '@/api/suricata';
+
+const EventList: React.FC = () => {
+  const [events, setEvents] = useState<SuricataEvent[]>([]);
+
+  useEffect(() => {
+    const loadEvents = async () => {
+      const data = await fetchSuricataEvents();
+      setEvents(data);
+    };
+    loadEvents();
+  }, []);
+
+  return (
+    <div>
+      <h2>Suricata Events</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Severity</th>
+            <th>Source IP</th>
+            <th>Destination IP</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {events.map((event) => (
+            <tr key={event.id}>
+              <td>{event.timestamp}</td>
+              <td>{event.severity}</td>
+              <td>{event.src_ip}</td>
+              <td>{event.dest_ip}</td>
+              <td>{event.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default EventList;
