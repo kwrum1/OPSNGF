@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/HUAHUAI23/simple-waf/server/config"
-	"github.com/HUAHUAI23/simple-waf/server/service/daemon"
+	"github.com/kwrum1/server/config"
+	"github.com/kwrum1/server/service/daemon"
 	"github.com/rs/zerolog"
 )
 
