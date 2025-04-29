@@ -1,5 +1,8 @@
 # 简易下一代防火墙（Simple Next-Generation Firewall）
 
+人人有墙建 人人有功练
+
+IPv6冲浪爽 又担心被干？
 > 🚧 本项目正在积极开发中，AI 模块即将上线。
 
 ---
