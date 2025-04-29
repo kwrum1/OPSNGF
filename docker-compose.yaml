@@ -8,20 +8,16 @@ services:
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example # 请替换为您的实际密码
-      # 可选：指定初始数据库名称
-      # MONGO_INITDB_DATABASE: waf_db
+      MONGO_INITDB_ROOT_PASSWORD: example   # 请替换为您的实际密码
     volumes:
       - mongodb_data:/data/db
-      - mongodb_config:/data/configdb # 添加配置数据卷
+      - mongodb_config:/data/configdb
     ports:
       - "27017:27017"
     networks:
       - waf-network
-    # 可选：添加命令行参数
-    # command: --wiredTigerCacheSizeGB 1.5
 
-  # Simple WAF 服务
+  # Simple WAF 服务（HAProxy + Coraza + Go 后端 + 前端）
   simple-waf:
     build:
       context: .
@@ -31,23 +27,44 @@ services:
     depends_on:
       - mongodb
     environment:
-      DB_URI: mongodb://root:example@mongodb:27017 # 请替换为您的实际密码
+      DB_URI: mongodb://root:example@mongodb:27017   # 请替换为您的实际密码
       JWT_SECRET: ffffffffffffffffffffffffffffff
       IS_PRODUCTION: "false"
       VITE_API_BASE_URL: http://localhost:2333/api/v1
     ports:
-      - "2333:2333"
-      - "8080:8080"
+      - "2333:2333"    # Go 后端 API
+      - "8080:8080"    # 前端 Web
       - "9443:9443"
       - "443:443"
       - "80:80"
       - "8404:8404"
     volumes:
       - simple_waf_data:/app/data
+      - ./haproxy.cfg:/etc/haproxy/haproxy.cfg:ro   # 挂载 HAProxy 配置
     networks:
       - waf-network
 
-# 定义持久化卷
+  # Suricata 网络层 IDS/IPS 服务
+  suricata:
+    image: jasonish/suricata:latest
+    container_name: waf-suricata
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    depends_on:
+      - simple-waf
+    volumes:
+      - ./suricata.yaml:/etc/suricata/suricata.yaml:ro
+      - ./logs/suricata:/var/log/suricata
+      - ./haproxy.cfg:/etc/haproxy/haproxy.cfg:ro
+      - ./suricata-reload.sh:/usr/local/bin/suricata-reload.sh:ro
+    environment:
+      SURICATA_IFACE: ens6    # 请替换为宿主机实际监听网卡名
+    entrypoint: ["/usr/local/bin/suricata-reload.sh"]
+    # 如果你希望在容器启动后就执行一次热重载，直接跑脚本并启动 Suricata
+
 volumes:
   mongodb_data:
     driver: local
@@ -56,7 +73,6 @@ volumes:
   simple_waf_data:
     driver: local
 
-# 定义网络
 networks:
   waf-network:
     driver: bridge
