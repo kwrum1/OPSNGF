@@ -1,0 +1,28 @@
+// server/web/src/api/suricata.ts
+
+import axios from 'axios';
+
+export interface SuricataEvent {
+  id: string;
+  timestamp: string;
+  severity: string;
+  src_ip: string;
+  dest_ip: string;
+  description: string;
+}
+
+export interface SuricataRule {
+  id: string;
+  rule: string;
+  enabled: boolean;
+}
+
+export const fetchSuricataEvents = async () => {
+  const response = await axios.get<SuricataEvent[]>('/api/v1/suricata/events');
+  return response.data;
+};
+
+export const fetchSuricataRules = async () => {
+  const response = await axios.get<SuricataRule[]>('/api/v1/suricata/rules');
+  return response.data;
+};
