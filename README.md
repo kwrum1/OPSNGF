@@ -17,11 +17,6 @@ run the application in less than 30 seconds,default username: **admin**,default 
 
 [![](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://usw.sealos.io/?openapp=system-template%3FtemplateName%3DRuiqi-Waf)
 
-## 📺 Demo Video
-
-
-
-https://github.com/user-attachments/assets/f74000d7-d229-4d00-843b-1ba28caeb13d
 
 
 
