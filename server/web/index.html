@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <link rel="icon" type="image/png" sizes="32x32" href="/logo32.png" />
+
+        <!-- 主题色定义 -->
+        <meta name="theme-color" content="#ffffff" />
+
+        <!-- SEO元标签 -->
+        <meta
+            name="description"
+            content="RuiQi WAF - Web应用程序防火墙管理系统"
+        />
+        <meta
+            name="keywords"
+            content="WAF, web security, firewall, protection"
+        />
+
+        <!-- 社交媒体分享信息 -->
+        <meta property="og:title" content="RuiQi WAF" />
+        <meta property="og:description" content="Web应用程序防火墙管理系统" />
+        <meta property="og:image" content="/og-image.png" />
+
+        <!-- 安全设置 -->
+        <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+
+        <!-- 预加载关键资源 -->
+        <!-- <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /> -->
+
+        <!-- 添加页面加载样式，避免初始白屏 -->
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            .app-loading {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+            }
+
+            /* 添加类似登录页的背景动画效果 */
+            .app-loading-background {
+                position: absolute;
+                inset: 0;
+                background-size: 200% 200%;
+                animation: preload-aurora 20s ease infinite;
+            }
+
+            .app-loading-blur-elements {
+                position: absolute;
+                inset: 0;
+                overflow: hidden;
+            }
+
+            .app-loading-blur-1 {
+                position: absolute;
+                width: 80%;
+                height: 80%;
+                top: 10%;
+                left: 10%;
+                background-color: rgba(216, 180, 254, 0.2); /* purple-300/20 */
+                border-radius: 9999px;
+                filter: blur(24px);
+                animation: preload-float 8s ease-in-out infinite;
+            }
+
+            .app-loading-blur-2 {
+                position: absolute;
+                width: 40%;
+                height: 40%;
+                top: 5%;
+                right: 15%;
+                background-color: rgba(165, 243, 252, 0.2); /* cyan-300/20 */
+                border-radius: 9999px;
+                filter: blur(24px);
+                animation: preload-float-reverse 9s ease-in-out infinite;
+            }
+
+            .app-loading-blur-3 {
+                position: absolute;
+                width: 50%;
+                height: 50%;
+                bottom: 5%;
+                left: 15%;
+                background-color: rgba(165, 180, 252, 0.2); /* indigo-300/20 */
+                border-radius: 9999px;
+                filter: blur(24px);
+                animation: preload-pulse-glow 4s ease-in-out infinite;
+            }
+
+            .app-loading-logo {
+                position: relative;
+                width: 80px;
+                height: 80px;
+                animation: preload-logo-pulse 1.5s infinite ease-in-out;
+                z-index: 10;
+            }
+
+            /* 定义动画关键帧 */
+            @keyframes preload-aurora {
+                0% {
+                    filter: hue-rotate(0deg) brightness(1) saturate(1.5);
+                }
+                33% {
+                    filter: hue-rotate(60deg) brightness(1.1) saturate(1.8);
+                }
+                66% {
+                    filter: hue-rotate(180deg) brightness(1.05) saturate(1.6);
+                }
+                100% {
+                    filter: hue-rotate(360deg) brightness(1) saturate(1.5);
+                }
+            }
+
+            @keyframes preload-float {
+                0% {
+                    transform: translateY(0px) translateX(0px);
+                }
+                50% {
+                    transform: translateY(-20px) translateX(10px);
+                }
+                100% {
+                    transform: translateY(0px) translateX(0px);
+                }
+            }
+
+            @keyframes preload-float-reverse {
+                0% {
+                    transform: translateY(0px) translateX(0px);
+                }
+                50% {
+                    transform: translateY(20px) translateX(-10px);
+                }
+                100% {
+                    transform: translateY(0px) translateX(0px);
+                }
+            }
+
+            @keyframes preload-pulse-glow {
+                0%,
+                100% {
+                    opacity: 0.6;
+                    transform: scale(1);
+                }
+                50% {
+                    opacity: 1;
+                    transform: scale(1.05);
+                }
+            }
+
+            @keyframes preload-logo-pulse {
+                0%,
+                100% {
+                    opacity: 0.9;
+                    transform: scale(0.95);
+                }
+                50% {
+                    opacity: 1;
+                    transform: scale(1.05);
+                }
+            }
+        </style>
+
+        <title>RuiQi WAF</title>
+    </head>
+    <body>
+        <div id="root">
+            <!-- 应用加载前显示的加载指示器 -->
+            <div class="app-loading">
+                <div class="app-loading-background"></div>
+                <div class="app-loading-blur-elements">
+                    <div class="app-loading-blur-1"></div>
+                    <div class="app-loading-blur-2"></div>
+                    <div class="app-loading-blur-3"></div>
+                </div>
+                <img
+                    src="/logo.svg"
+                    alt="Loading RuiQi WAF"
+                    class="app-loading-logo"
+                />
+            </div>
+        </div>
+        <script type="module" src="/src/main.tsx"></script>
+    </body>
+</html>
