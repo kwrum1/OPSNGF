@@ -101,8 +101,8 @@ Docker 与 Docker Compose（用于容器化部署）​
 
 bash
 
-git clone https://github.com/HUAHUAI23/simple-waf.git
-cd simple-waf
+git clone https://github.com/kwrum1/OPSNGF
+cd simple-wa
 设置前端开发环境：​
 
 
@@ -134,7 +134,7 @@ ReDoc UI：http://localhost:2333/redoc
 Docker 部署 / Docker Deployment
 克隆仓库：​
 
-git clone https://github.com/HUAHUAI23/simple-waf.git
+git clone https://github.com/kwrum1/OPSNGF
 cd simple-waf
 构建 Docker 镜像：​
 
